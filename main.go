@@ -14,17 +14,14 @@ func main() {
 		log.Fatalf("ARTIE_API_KEY is not set: %v", err)
 	}
 
-	if len(os.Args) < 2 {
-		log.Fatalf("no command provided")
+	command, err := internal.ParseCommand(os.Args)
+	if err != nil {
+		log.Fatalf("Failed to parse command: %v", err)
 	}
 
 	ctx := context.Background()
 	artieClient := internal.NewArtieClient(os.Getenv("ARTIE_API_KEY"), os.Getenv("ARTIE_API_URL_OVERRIDE"))
-
-	switch os.Args[1] {
-	case "list-deployments":
-		if err := artieClient.ListDeployments(ctx); err != nil {
-			log.Fatalf("failed to list deployments: %v", err)
-		}
+	if err := command.Execute(ctx, artieClient); err != nil {
+		log.Fatalf("Failed to execute command: %v", err)
 	}
 }

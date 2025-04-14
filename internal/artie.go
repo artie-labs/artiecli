@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"bytes"
 	"cmp"
 	"context"
 	"encoding/json"
@@ -66,6 +67,56 @@ func (a ArtieClient) ListDeployments(ctx context.Context) error {
 			return err
 		}
 
+		fmt.Println(string(out))
+	}
+	fmt.Println("--------------------------------")
+	return nil
+}
+
+func (a ArtieClient) CancelDeploymentBackfill(ctx context.Context, deploymentUUID string, tableUUIDs []string) error {
+	request := map[string]any{
+		"optionalReason": "Done through Artie CLI",
+		"tableUUIDs":     tableUUIDs,
+	}
+
+	body, err := json.Marshal(request)
+	if err != nil {
+		return err
+	}
+
+	out, err := a.doRequest(ctx, http.MethodPost, fmt.Sprintf("/deployments/%s/backfill/cancel", deploymentUUID), bytes.NewReader(body))
+	if err != nil {
+		return fmt.Errorf("failed to cancel deployment backfill: %w, response: %q", err, string(out))
+	}
+
+	return nil
+}
+
+func (a ArtieClient) GetDeploymentByUUID(ctx context.Context, deploymentUUID string) error {
+	out, err := a.doRequest(ctx, http.MethodGet, fmt.Sprintf("/deployments/%s", deploymentUUID), nil)
+	if err != nil {
+		return err
+	}
+
+	var resp GetDeploymentResponse
+	if err := json.Unmarshal(out, &resp); err != nil {
+		return err
+	}
+
+	fmt.Println("--------------------------------")
+	fmt.Println("Deployment:")
+	out, err = json.Marshal(resp.FullDeployment.Deployment)
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(out))
+
+	fmt.Println("Tables:")
+	for _, table := range resp.FullDeployment.Source.Tables {
+		out, err := json.Marshal(table)
+		if err != nil {
+			return err
+		}
 		fmt.Println(string(out))
 	}
 	fmt.Println("--------------------------------")
