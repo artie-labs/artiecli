@@ -4,4 +4,7 @@ go 1.24.0
 
 toolchain go1.24.2
 
-require github.com/artie-labs/transfer v1.27.94
+require (
+	github.com/artie-labs/transfer v1.27.94
+	github.com/google/uuid v1.6.0
+)
