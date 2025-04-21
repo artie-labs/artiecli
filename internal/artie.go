@@ -31,6 +31,7 @@ func (a ArtieClient) doRequest(ctx context.Context, method, path string, body io
 		return nil, err
 	}
 
+	req.Header.Set("User-Agent", "terraform-provider-artie/1.0.8")
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", a.apiKey))
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := http.DefaultClient.Do(req)
