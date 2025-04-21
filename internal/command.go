@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log/slog"
 	"strings"
+
+	"github.com/google/uuid"
 )
 
 type Command interface {
@@ -90,6 +92,29 @@ func (c *CancelDeploymentBackfillCommand) ParseFlags(fs *flag.FlagSet, args []st
 	return nil
 }
 
+type SourceReaderDeployCommand struct {
+	SourceReaderUUID uuid.UUID
+}
+
+func (s SourceReaderDeployCommand) Execute(ctx context.Context, client ArtieClient) error {
+	return client.DeploySourceReader(ctx, s.SourceReaderUUID)
+}
+
+func (s *SourceReaderDeployCommand) ParseFlags(fs *flag.FlagSet, args []string) error {
+	var sourceReaderUUID string
+	fs.StringVar(&sourceReaderUUID, "source-reader-uuid", "", "UUID of the source reader to deploy")
+	if err := fs.Parse(args); err != nil {
+		return fmt.Errorf("failed to parse flags: %w", err)
+	}
+
+	parsedUUID, err := uuid.Parse(sourceReaderUUID)
+	if err != nil {
+		return fmt.Errorf("failed to parse source reader UUID: %w", err)
+	}
+
+	s.SourceReaderUUID = parsedUUID
+	return nil
+}
 func ParseCommand(args []string) (Command, error) {
 	if len(args) < 2 {
 		return nil, fmt.Errorf("no command provided")

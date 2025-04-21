@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+
+	"github.com/google/uuid"
 )
 
 type ArtieClient struct {
@@ -92,6 +94,14 @@ func (a ArtieClient) CancelDeploymentBackfill(ctx context.Context, deploymentUUI
 	return nil
 }
 
+func (a ArtieClient) DeploySourceReader(ctx context.Context, sourceReaderUUID uuid.UUID) error {
+	_, err := a.doRequest(ctx, http.MethodPost, fmt.Sprintf("/source-readers/%s/deploy", sourceReaderUUID), nil)
+	if err != nil {
+		return fmt.Errorf("failed to deploy source reader: %w", err)
+	}
+
+	return nil
+}
 func (a ArtieClient) GetDeploymentByUUID(ctx context.Context, deploymentUUID string) error {
 	out, err := a.doRequest(ctx, http.MethodGet, fmt.Sprintf("/deployments/%s", deploymentUUID), nil)
 	if err != nil {
