@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"slices"
 
 	"github.com/google/uuid"
 )
@@ -45,8 +46,9 @@ func (a ArtieClient) doRequest(ctx context.Context, method, path string, body io
 		return nil, err
 	}
 
-	if resp.StatusCode != http.StatusOK {
-		return out, fmt.Errorf("non-200 status code: %d", resp.StatusCode)
+	acceptableCodes := []int{http.StatusOK, http.StatusAccepted}
+	if !slices.Contains(acceptableCodes, resp.StatusCode) {
+		return out, fmt.Errorf("non-200 status code: %d, response: %q", resp.StatusCode, string(out))
 	}
 
 	return out, nil
