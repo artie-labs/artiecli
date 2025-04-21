@@ -115,6 +115,31 @@ func (s *SourceReaderDeployCommand) ParseFlags(fs *flag.FlagSet, args []string) 
 	s.SourceReaderUUID = parsedUUID
 	return nil
 }
+
+type DeployDeploymentCommand struct {
+	deploymentUUID uuid.UUID
+}
+
+func (d DeployDeploymentCommand) Execute(ctx context.Context, client ArtieClient) error {
+	return client.DeployDeployment(ctx, d.deploymentUUID)
+}
+
+func (d *DeployDeploymentCommand) ParseFlags(fs *flag.FlagSet, args []string) error {
+	var deploymentUUID string
+	fs.StringVar(&deploymentUUID, "deployment-uuid", "", "UUID of the deployment to deploy")
+	if err := fs.Parse(args); err != nil {
+		return fmt.Errorf("failed to parse flags: %w", err)
+	}
+
+	parsedUUID, err := uuid.Parse(deploymentUUID)
+	if err != nil {
+		return fmt.Errorf("failed to parse deployment UUID: %w", err)
+	}
+
+	d.deploymentUUID = parsedUUID
+	return nil
+}
+
 func ParseCommand(args []string) (Command, error) {
 	if len(args) < 2 {
 		return nil, fmt.Errorf("no command provided")

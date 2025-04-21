@@ -94,6 +94,14 @@ func (a ArtieClient) CancelDeploymentBackfill(ctx context.Context, deploymentUUI
 	return nil
 }
 
+func (a ArtieClient) DeployDeployment(ctx context.Context, deploymentUUID uuid.UUID) error {
+	_, err := a.doRequest(ctx, http.MethodPost, fmt.Sprintf("/deployments/%s/start", deploymentUUID), nil)
+	if err != nil {
+		return fmt.Errorf("failed to deploy deployment: %w", err)
+	}
+
+	return nil
+}
 func (a ArtieClient) DeploySourceReader(ctx context.Context, sourceReaderUUID uuid.UUID) error {
 	_, err := a.doRequest(ctx, http.MethodPost, fmt.Sprintf("/source-readers/%s/deploy", sourceReaderUUID), nil)
 	if err != nil {
