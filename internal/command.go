@@ -153,6 +153,10 @@ func ParseCommand(args []string) (Command, error) {
 		cmd = &GetDeploymentByUUIDCommand{}
 	case "cancel-deployment-backfill":
 		cmd = &CancelDeploymentBackfillCommand{}
+	case "deploy-deployment":
+		cmd = &DeployDeploymentCommand{}
+	case "deploy-source-reader":
+		cmd = &SourceReaderDeployCommand{}
 	default:
 		return nil, fmt.Errorf("unknown command: %q", args[1])
 	}
