@@ -46,7 +46,7 @@ func (a ArtieClient) doRequest(ctx context.Context, method, path string, body io
 		return nil, err
 	}
 
-	acceptableCodes := []int{http.StatusOK, http.StatusAccepted}
+	acceptableCodes := []int{http.StatusOK, http.StatusAccepted, http.StatusNoContent}
 	if !slices.Contains(acceptableCodes, resp.StatusCode) {
 		return out, fmt.Errorf("non-200 status code: %d, response: %q", resp.StatusCode, string(out))
 	}
