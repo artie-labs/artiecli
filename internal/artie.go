@@ -130,8 +130,8 @@ func (a ArtieClient) GetDeploymentByUUID(ctx context.Context, deploymentUUID str
 	if err != nil {
 		return err
 	}
-	fmt.Println(string(out))
 
+	fmt.Println(string(out))
 	fmt.Println("Tables:")
 	for _, table := range resp.FullDeployment.Source.Tables {
 		out, err := json.Marshal(table)
