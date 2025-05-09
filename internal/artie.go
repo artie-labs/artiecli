@@ -98,7 +98,7 @@ func (a ArtieClient) CancelDeploymentBackfill(ctx context.Context, deploymentUUI
 }
 
 func (a ArtieClient) DeployDeployment(ctx context.Context, deploymentUUID uuid.UUID) error {
-	_, err := a.doRequest(ctx, http.MethodPost, fmt.Sprintf("/deployments/%s/start", deploymentUUID), nil)
+	_, err := a.doRequest(ctx, http.MethodPost, fmt.Sprintf("/pipeline/%s/start", deploymentUUID), nil)
 	if err != nil {
 		return fmt.Errorf("failed to deploy deployment: %w", err)
 	}

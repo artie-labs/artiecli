@@ -117,26 +117,40 @@ func (s *SourceReaderDeployCommand) ParseFlags(fs *flag.FlagSet, args []string) 
 }
 
 type DeployDeploymentCommand struct {
-	deploymentUUID uuid.UUID
+	deploymentUUIDs []uuid.UUID
 }
 
 func (d DeployDeploymentCommand) Execute(ctx context.Context, client ArtieClient) error {
-	return client.DeployDeployment(ctx, d.deploymentUUID)
+	for _, deploymentUUID := range d.deploymentUUIDs {
+		if err := client.DeployDeployment(ctx, deploymentUUID); err != nil {
+			return fmt.Errorf("failed to deploy deployment %q: %w", deploymentUUID, err)
+		}
+	}
+	return nil
 }
 
 func (d *DeployDeploymentCommand) ParseFlags(fs *flag.FlagSet, args []string) error {
-	var deploymentUUID string
-	fs.StringVar(&deploymentUUID, "deployment-uuid", "", "UUID of the deployment to deploy")
+	var deploymentUUIDsString string
+	fs.StringVar(&deploymentUUIDsString, "deployment-uuids", "", "Comma-separated list of deployment UUIDs to deploy")
 	if err := fs.Parse(args); err != nil {
 		return fmt.Errorf("failed to parse flags: %w", err)
 	}
 
-	parsedUUID, err := uuid.Parse(deploymentUUID)
-	if err != nil {
-		return fmt.Errorf("failed to parse deployment UUID: %w", err)
+	if deploymentUUIDsString == "" {
+		return fmt.Errorf("--deployment-uuids is required")
 	}
 
-	d.deploymentUUID = parsedUUID
+	deploymentUUIDs := strings.Split(deploymentUUIDsString, ",")
+	var uuids []uuid.UUID
+	for _, deploymentUUID := range deploymentUUIDs {
+		parsedUUID, err := uuid.Parse(deploymentUUID)
+		if err != nil {
+			return fmt.Errorf("failed to parse deployment UUID: %w", err)
+		}
+		uuids = append(uuids, parsedUUID)
+	}
+
+	d.deploymentUUIDs = uuids
 	return nil
 }
 
